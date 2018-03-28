@@ -1,3 +1,6 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Vector;
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
@@ -9,24 +12,27 @@ public class Spider {
 	static RecordManager recman;
 	static StopStem stopStem = new StopStem("stopwords.txt");
 	static Index visitedPage;
-	static InvertedIndex words;
-	static Index indexToPage;
-	static Index indexToTitle;
-	static Index indexToLastModifiedDate;
-	static InvertedIndex indexToWordWithFrequency;
-	static InvertedIndex indexToChildLink;
+	static InvertedIndex indexToDocPos; // words to page ID and position
+	static Index indexToPageURL; // page's primary key to page's URL
+	static Index indexToTitle; // page's primary key to page's title
+	static Index indexToLastModifiedDate; // page's primary key to page's last modified date
+	static InvertedIndex indexToWordWithFrequency; // page's primary key to indexed words with frequency
+	// ignore links but not numbers 
+	static InvertedIndex indexToChildLink; // to-be-done
+	static Index indexToPageSize; // to-be-done
+	static InvertedIndex indexToParentLink; // to-be-done
 	
 	public static void initializeDatabase() {
 		try {
 			recman = RecordManagerFactory.createRecordManager("database");
 			visitedPage = new Index(recman,"visitedPage");
-			indexToPage = new Index(recman, "indexToPage");
+			indexToPageURL = new Index(recman, "indexToPage");
 			indexToTitle = new Index(recman, "indexToTitle");
 			indexToLastModifiedDate = new Index(recman, "indexToLastModifiedDate");
 			indexToWordWithFrequency = new InvertedIndex(recman, "indexToWordWithFrequency");
 			indexToChildLink = new InvertedIndex(recman, "indexToChildLink");
 			
-			words = new InvertedIndex(recman, "words");
+			indexToDocPos = new InvertedIndex(recman, "words");
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -52,7 +58,7 @@ public class Spider {
 					Crawler crawler = new Crawler(currentPage);
 					pages.addAll(crawler.extractLinks());
 					visitedPage.addEntry(currentPage, numPages);
-					indexToPage.addEntry(numPages, currentPage);
+					indexToPageURL.addEntry(numPages, currentPage);
 					indexToTitle.addEntry(numPages, crawler.extractTitle());
 					indexToLastModifiedDate.addEntry(numPages, crawler.extractLastModifiedDate());
 					
@@ -68,7 +74,7 @@ public class Spider {
 							nthWord++;
 							continue;
 						}
-						words.addEntry(currentWords, numPages, nthWord);
+						indexToDocPos.addEntry(currentWords, numPages, nthWord);
 						indexToWordWithFrequency.addEntryFrequency(String.valueOf(numPages), currentWords);
 						nthWord++;
 					}
@@ -87,7 +93,7 @@ public class Spider {
 			//System.out.println("\n\nwords:");
 			//words.printAll();
 			System.out.println("\n\nindexToPage:");
-			indexToPage.printAll();
+			indexToPageURL.printAll();
 			System.out.println("\n\nindexToTitle:");
 			indexToTitle.printAll();
 			System.out.println("\n\nindexToLastModifiedDate:");
@@ -122,6 +128,13 @@ public class Spider {
 	 * 
 	 */
 	public static void output() {
-		
+		String fileName = "spider_result.txt";
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+			
+		} catch (IOException e) {
+			
+		}
+		   
 	}
 }
