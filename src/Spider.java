@@ -13,6 +13,8 @@ public class Spider {
 	static Index indexToPage;
 	static Index indexToTitle;
 	static Index indexToLastModifiedDate;
+	static InvertedIndex indexToWordWithFrequency;
+	static InvertedIndex indexToChildLink;
 	
 	public static void initializeDatabase() {
 		try {
@@ -21,6 +23,9 @@ public class Spider {
 			indexToPage = new Index(recman, "indexToPage");
 			indexToTitle = new Index(recman, "indexToTitle");
 			indexToLastModifiedDate = new Index(recman, "indexToLastModifiedDate");
+			indexToWordWithFrequency = new InvertedIndex(recman, "indexToWordWithFrequency");
+			indexToChildLink = new InvertedIndex(recman, "indexToChildLink");
+			
 			words = new InvertedIndex(recman, "words");
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -59,7 +64,12 @@ public class Spider {
 							continue;
 						}
 						currentWords = stopStem.stem(currentWords);
+						if(currentWords == " " || currentWords == "" || (currentWords.contains("http") && currentWords.length() > 17)) {
+							nthWord++;
+							continue;
+						}
 						words.addEntry(currentWords, numPages, nthWord);
+						indexToWordWithFrequency.addEntryFrequency(String.valueOf(numPages), currentWords);
 						nthWord++;
 					}
 					numPages++;
@@ -82,6 +92,8 @@ public class Spider {
 			indexToTitle.printAll();
 			System.out.println("\n\nindexToLastModifiedDate:");
 			indexToLastModifiedDate.printAll();
+			System.out.println("\n\nindexToWordWithFrequency:");
+			indexToWordWithFrequency.printAll();
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
