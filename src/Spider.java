@@ -11,14 +11,16 @@ public class Spider {
 	static Index visitedPage;
 	static InvertedIndex words;
 	static Index indexToPage;
-	
+	static Index indexToTitle;
+	static Index indexToLastModifiedDate;
 	
 	public static void initializeDatabase() {
 		try {
 			recman = RecordManagerFactory.createRecordManager("database");
 			visitedPage = new Index(recman,"visitedPage");
 			indexToPage = new Index(recman, "indexToPage");
-			
+			indexToTitle = new Index(recman, "indexToTitle");
+			indexToLastModifiedDate = new Index(recman, "indexToLastModifiedDate");
 			words = new InvertedIndex(recman, "words");
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -44,8 +46,11 @@ public class Spider {
 				}else {
 					Crawler crawler = new Crawler(currentPage);
 					pages.addAll(crawler.extractLinks());
-					visitedPage.addEntry(currentPage, numPages + 1);
+					visitedPage.addEntry(currentPage, numPages);
 					indexToPage.addEntry(numPages, currentPage);
+					indexToTitle.addEntry(numPages, crawler.extractTitle());
+					indexToLastModifiedDate.addEntry(numPages, crawler.extractLastModifiedDate());
+					
 					Vector<String> currentPageWords = crawler.extractWords();
 					int nthWord = 0;
 					for(String currentWords : currentPageWords) {
@@ -54,7 +59,7 @@ public class Spider {
 							continue;
 						}
 						currentWords = stopStem.stem(currentWords);
-						words.addEntry(currentWords, numPages, nthWord + 1);
+						words.addEntry(currentWords, numPages, nthWord);
 						nthWord++;
 					}
 					numPages++;
@@ -73,6 +78,10 @@ public class Spider {
 			//words.printAll();
 			System.out.println("\n\nindexToPage:");
 			indexToPage.printAll();
+			System.out.println("\n\nindexToTitle:");
+			indexToTitle.printAll();
+			System.out.println("\n\nindexToLastModifiedDate:");
+			indexToLastModifiedDate.printAll();
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -92,5 +101,15 @@ public class Spider {
 		Spider.crawlPages();
 		Spider.getPages();
 		Spider.finalizingPages();
+		Spider.output();
+	}
+	
+	//To be done
+	/*
+	 * need: get things from database and output back to the spider_result.txt
+	 * 
+	 */
+	public static void output() {
+		
 	}
 }

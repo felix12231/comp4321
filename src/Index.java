@@ -66,8 +66,15 @@ public class Index
 	{
 		// Add a "docX Y" entry for the key "word" into hashtable
 		// ADD YOUR CODES HERE
-		if(!checkEntry(word))
+		if(!checkEntry(""+word))
 			hashtable.put("" + word, x);
+	}
+	public void addEntry(String word, String x) throws IOException
+	{
+		// Add a "docX Y" entry for the key "word" into hashtable
+		// ADD YOUR CODES HERE
+		if(!checkEntry(word))
+			hashtable.put(word, x);
 	}
 	public void delEntry(String word) throws IOException
 	{

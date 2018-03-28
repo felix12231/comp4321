@@ -69,8 +69,30 @@ public class InvertedIndex
 	{
 		// Add a "docX Y" entry for the key "word" into hashtable
 		// ADD YOUR CODES HERE
+		//prevent entering same entry
+		if (hashtable.get(word) != null && ((String) hashtable.get(word)).contains("doc" + x + " " + y))
+		{
+			return;
+		}
 		String original = (String) hashtable.get(word);
 		String added = "doc" + x + " " + y;
+		if(original == null || original.equals(""));
+		else {
+			added = original + " " + added;
+		}
+		hashtable.put(word, added);
+	}
+	public void addEntry(String word, String added) throws IOException
+	{
+		// Add a "docX Y" entry for the key "word" into hashtable
+		// ADD YOUR CODES HERE
+		//prevent entering same entry
+		if (hashtable.get(word) != null && ((String) hashtable.get(word)).contains(added))
+		{
+			return;
+		}
+		String original = (String) hashtable.get(word);
+		
 		if(original == null || original.equals(""));
 		else {
 			added = original + " " + added;
