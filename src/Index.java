@@ -94,6 +94,11 @@ public class Index
 		}
 	}	
 	
+	public FastIterator getFastIterator() throws IOException {
+		FastIterator iter = hashtable.keys();
+		return iter;
+	}
+	
 	public boolean checkEntry(String check) throws IOException{
 		String original = (String) hashtable.get(check);
 		return (original == null || original.equals("")) ? false : true;
