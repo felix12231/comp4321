@@ -15,24 +15,32 @@ import org.htmlparser.filters.NodeClassFilter;
 import org.htmlparser.tags.LinkTag;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
+
+import java.util.Date;
+import java.util.Iterator;
 import java.util.StringTokenizer;
 import org.htmlparser.beans.LinkBean;
+
+import java.net.MalformedURLException;
 import java.net.URL;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import java.io.IOException;
 import java.net.URLConnection;
-
+import java.text.SimpleDateFormat;
 
 
 
 public class Crawler
 {
 	private String url;
+	private Vector<String> stringVec;
+	
 	Crawler(String _url)
 	{
 		url = _url;
 	}
+	
 	public Vector<String> extractWords() throws ParserException
 
 	{
@@ -50,8 +58,30 @@ public class Crawler
         while(st.hasMoreTokens()) {
         	result.add(st.nextToken());
         }
+        this.stringVec = result;
         return result;
 	}
+	
+	public long extractContentLengthLong() {
+		try {
+			URL place = new URL(url);
+			URLConnection connection = place.openConnection();
+			long length = connection.getContentLengthLong();
+			if(length == -1L) {
+				Iterator<String> vecItor = this.stringVec.iterator();
+				while(vecItor.hasNext()) {
+					length += (long)vecItor.next().length();
+				}
+				System.out.println("Found length == -1L");
+			}
+			return length;
+			
+		}catch (Exception e) {
+			return 0L;
+		}
+		
+	}
+	
 	public Vector<String> extractLinks() throws ParserException
 
 	{
@@ -79,9 +109,14 @@ public class Crawler
 	
 	{
 		try {
-		URL place = new URL(url);
-		URLConnection connection = place.openConnection();
-		return connection.getHeaderField("Last-Modified");
+			URL place = new URL(url);
+			URLConnection connection = place.openConnection();
+			long date = connection.getLastModified();
+			SimpleDateFormat dateFormatter = new SimpleDateFormat("EEEE, MMMM d, yyyy");
+			if(date == 0) {
+				date = connection.getDate();
+			}
+			return dateFormatter.format(new Date(date));
 		}catch (Exception e) {
 			return null;
 		}
@@ -92,7 +127,7 @@ public class Crawler
 	{
 		try
 		{
-			Crawler crawler = new Crawler("http://www.cs.ust.hk/~dlee/4321/");
+			Crawler crawler = new Crawler("http://www.cse.ust.hk/");
 
 
 			Vector<String> words = crawler.extractWords();		
@@ -119,6 +154,9 @@ public class Crawler
 			
 			System.out.println("\n\nLast Modified Date in " + crawler.url+":");
 			System.out.println(crawler.extractLastModifiedDate());
+			
+			System.out.println("\n\nContent Length in " + crawler.url+":");
+			System.out.println(crawler.extractContentLengthLong());
 			
 		}
 		catch (ParserException e)
