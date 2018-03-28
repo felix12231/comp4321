@@ -99,6 +99,10 @@ public class Index
 		return iter;
 	}
 	
+	public String getValue(String key) throws IOException {
+		return (String) hashtable.get(key);
+	}
+	
 	public boolean checkEntry(String check) throws IOException{
 		String original = (String) hashtable.get(check);
 		return (original == null || original.equals("")) ? false : true;
