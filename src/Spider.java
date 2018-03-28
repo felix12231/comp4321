@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Vector;
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
+import jdbm.helper.FastIterator;
 import jdbm.htree.HTree;
 
 public class Spider {
@@ -11,7 +12,7 @@ public class Spider {
 	static int maxPages = 30;
 	static RecordManager recman;
 	static StopStem stopStem = new StopStem("stopwords.txt");
-	static Index visitedPage;
+	static Index visitedPage; // page's URL to primary key
 	static InvertedIndex indexToDocPos; // words to page ID and position
 	static Index indexToPageURL; // page's primary key to page's URL
 	static Index indexToTitle; // page's primary key to page's title
@@ -112,29 +113,76 @@ public class Spider {
 			e.printStackTrace();
 		}
 	}
+	//To be done
+		/*
+		 * need: get things from database and output back to the spider_result.txt
+		 * 
+		 */
+	public static void output() {
+		String fileName = "spider_result.txt";
+		try {
+			System.out.println("\n\nReading onto spider_result.txt:");
+			BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+			FastIterator itor = indexToTitle.getFastIterator();
+			String primaryKey;
+			primaryKey= (String) itor.next();
+			while(primaryKey!= null) {
+				System.out.println("primaryKey = "+primaryKey);
+				writer.write(indexToTitle.getValue(primaryKey));
+				writer.newLine();
+				writer.write(indexToPageURL.getValue(primaryKey));
+				writer.newLine();
+				writer.write(indexToLastModifiedDate.getValue(primaryKey));
+				writer.write(", ");
+				// writer.write(indexToPageSize.getValue(primaryKey)); /* to-be-updated */
+				writer.newLine();
+				String allS = indexToWordWithFrequency.getValue(primaryKey);
+				if(allS != null) {
+					String[] allList = allS.split(" ");
+					String current, freq;
+					int i;
+					for(i = 0; i < allList.length-2; i+=2) {
+						current = allList[i];
+						writer.write(current);
+						freq = allList[i+1];
+						writer.write(" "+freq+"; ");
+					}
+					// for the last keyword and frequency:
+					writer.write(allList[i]);
+					writer.write(" "+allList[i+1]);			
+					writer.newLine();
+				}
+				/* to-be-updated */
+				/* 
+				allList = ((String) indexToChildLink.getValue(primaryKey)).split(" ");
+				for(i = 0; i < allList.length-1; ++i) {
+					writer.write(allList[i]);
+					writer.newLine();
+				}
+				writer.write(allList[i]);
+				*/
+				if((primaryKey = (String) itor.next())!=null) {
+					writer.write("-------------------------------------------------------------------------------------------");
+					writer.newLine();
+				}
+			}
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		   
+	}
 	
+
 	public static void main(String[] arg)
 	{
 		Spider.initializeDatabase();
 		Spider.crawlPages();
 		Spider.getPages();
-		Spider.finalizingPages();
 		Spider.output();
+		Spider.finalizingPages();
 	}
 	
-	//To be done
-	/*
-	 * need: get things from database and output back to the spider_result.txt
-	 * 
-	 */
-	public static void output() {
-		String fileName = "spider_result.txt";
-		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
-			
-		} catch (IOException e) {
-			
-		}
-		   
-	}
-}
+}	
+	
