@@ -64,9 +64,8 @@ public class Spider {
 					indexToPageURL.addEntry(numPages, currentPage);
 					indexToTitle.addEntry(numPages, crawler.extractTitle());
 					indexToLastModifiedDate.addEntry(numPages, crawler.extractLastModifiedDate());
-					indexToPageSize.addEntry(String.valueOf(numPages), String.valueOf(crawler.extractContentLengthLong()));
-					
 					Vector<String> currentPageWords = crawler.extractWords();
+					indexToPageSize.addEntry(String.valueOf(numPages), String.valueOf(crawler.extractContentLengthLong()));
 					int nthWord = 0;
 					for(String currentWords : currentPageWords) {
 						if(stopStem.isStopWord(currentWords)) {
@@ -111,6 +110,8 @@ public class Spider {
 			//indexToChildLink.printAll();
 			System.out.println("\n\nindexToLastModifiedDate");
 			indexToLastModifiedDate.printAll();
+			System.out.println("\n\nindexToPageSize");
+			indexToPageSize.printAll();
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -144,13 +145,14 @@ public class Spider {
 				writer.newLine();
 				writer.write(indexToLastModifiedDate.getValue(primaryKey));
 				writer.write(", ");
-				// writer.write(indexToPageSize.getValue(primaryKey)); /* to-be-updated */
+				writer.write(indexToPageSize.getValue(primaryKey)); /* to-be-updated */
 				writer.newLine();
 				String allS = indexToWordWithFrequency.getValue(primaryKey);
+				String[] allList;
+				int i;
 				if(allS != null) {
-					String[] allList = allS.split(" ");
+					allList = allS.split(" ");
 					String current, freq;
-					int i;
 					for(i = 0; i < allList.length-2; i+=2) {
 						current = allList[i];
 						writer.write(current);
@@ -162,15 +164,15 @@ public class Spider {
 					writer.write(" "+allList[i+1]);			
 					writer.newLine();
 				}
-				/* to-be-updated */
-				/* 
-				allList = ((String) indexToChildLink.getValue(primaryKey)).split(" ");
-				for(i = 0; i < allList.length-1; ++i) {
-					writer.write(allList[i]);
-					writer.newLine();
-				}
-				writer.write(allList[i]);
-				*/
+				allS = (String) indexToChildLink.getValue(primaryKey);
+				if(allS != null) {
+					allList = allS.split(" ");
+					for(i = 0; i < allList.length; ++i) {
+						writer.write(allList[i]);
+						writer.newLine();
+					}
+					// writer.write(allList[i]);
+				}	
 				if((primaryKey = (String) itor.next())!=null) {
 					writer.write("-------------------------------------------------------------------------------------------");
 					writer.newLine();
