@@ -5,7 +5,6 @@ import java.util.Vector;
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
 import jdbm.helper.FastIterator;
-import jdbm.htree.HTree;
 
 public class Spider {
 	static String firstPage = "http://www.cse.ust.hk";

@@ -10,9 +10,8 @@ import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
 import jdbm.htree.HTree;
 import jdbm.helper.FastIterator;
-import java.util.Vector;
 import java.io.IOException;	
-import java.io.Serializable;
+
 
 
 public class Index
