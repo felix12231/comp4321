@@ -39,7 +39,7 @@ public class Crawler
 		// extract words in url and return them
 		// use StringTokenizer to tokenize the result from StringBean
 		// ADD YOUR CODES HERE
-		Vector<String> result = new Vector<String>();
+		/*Vector<String> result = new Vector<String>();
 		StringBean sb;
 
         sb = new StringBean ();
@@ -51,7 +51,24 @@ public class Crawler
         	result.add(st.nextToken());
         }
         this.stringVec = result;
-        return result;
+        return result;*/
+		try {
+			Vector<String> result = new Vector<String>();
+			Document doc = Jsoup.connect(url).get();
+			String text = doc.body().text();
+			if(text.equals("")) {
+				this.stringVec = result;
+				return result;
+			}
+			for(String content : text.split(" ")) {
+				result.add(content);
+			}
+			this.stringVec = result;
+			return result;
+		}catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	public long extractContentLengthLong() {
@@ -127,7 +144,7 @@ public class Crawler
 			
 			System.out.println("Words in "+crawler.url+":");
 			for(int i = 0; i < words.size(); i++)
-				System.out.print(words.get(i)+" ");
+				System.out.println(words.get(i)+" ");
 			System.out.println("\n\n");
 			
 
