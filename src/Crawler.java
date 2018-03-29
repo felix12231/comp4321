@@ -84,8 +84,8 @@ public class Crawler
 				while(vecItor.hasNext()) {
 					length += (long)vecItor.next().length();
 				}
-				System.out.println("Found length == -1L");
 			}
+			System.out.println("Found length = " + length);
 			return length;
 			
 		}catch (Exception e) {

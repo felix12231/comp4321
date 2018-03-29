@@ -45,7 +45,7 @@ public class Spider {
 			Vector<String> pages = new Vector<String>();
 			pages.add(firstPage);
 			int numPages = 0;
-			System.out.println("\n\n get all pages");
+			System.out.println("\nGet 30 pages");
 			while(!pages.isEmpty() && numPages < maxPages) {
 				String currentPage = pages.get(0);
 				System.out.println(currentPage);
@@ -136,7 +136,7 @@ public class Spider {
 	public static void output() {
 		String fileName = "spider_result.txt";
 		try {
-			System.out.println("\n\nReading onto spider_result.txt:");
+			System.out.println("\n\nWriting onto spider_result.txt:");
 			BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
 			FastIterator itor = indexToTitle.getFastIterator();
 			String primaryKey;
@@ -147,7 +147,7 @@ public class Spider {
 				title = indexToTitle.getValue(primaryKey);
 				if(!title.equals("")) {
 					writer.write(title);
-					System.out.println("title" + title);
+					System.out.println("Ttitle: " + title);
 				}else {
 					writer.write("No title");
 					System.out.println("No title");
@@ -205,7 +205,7 @@ public class Spider {
 	
 
 	public static void main(String[] arg)
-	{
+	{	
 		Spider.initializeDatabase();
 		Spider.crawlPages();
 		Spider.getPages();
