@@ -16,11 +16,11 @@ public class Spider {
 	static Index indexToPageURL; // page's primary key to page's URL
 	static Index indexToTitle; // page's primary key to page's title
 	static Index indexToLastModifiedDate; // page's primary key to page's last modified date
-	static InvertedIndex indexToWordWithFrequency; // page's primary key to indexed words with frequency
+	static MoreThanOneIndex indexToWordWithFrequency; // page's primary key to indexed words with frequency
 	// ignore links but not numbers 
-	static InvertedIndex indexToChildLink; // to-be-done
+	static MoreThanOneIndex indexToChildLink; // to-be-done
 	static Index indexToPageSize; // to-be-done
-	static InvertedIndex linkToParentLink; // to-be-done
+	static MoreThanOneIndex linkToParentLink; // to-be-done
 	
 	public static void initializeDatabase() {
 		try {
@@ -29,10 +29,10 @@ public class Spider {
 			indexToPageURL = new Index(recman, "indexToPage");
 			indexToTitle = new Index(recman, "indexToTitle");
 			indexToLastModifiedDate = new Index(recman, "indexToLastModifiedDate");
-			indexToWordWithFrequency = new InvertedIndex(recman, "indexToWordWithFrequency");
-			indexToChildLink = new InvertedIndex(recman, "indexToChildLink");
+			indexToWordWithFrequency = new MoreThanOneIndex(recman, "indexToWordWithFrequency");
+			indexToChildLink = new MoreThanOneIndex(recman, "indexToChildLink");
 			indexToPageSize = new Index(recman, "indexToPageSize");
-			linkToParentLink = new InvertedIndex(recman,"indexToParentLink");
+			linkToParentLink = new MoreThanOneIndex(recman,"indexToParentLink");
 			
 			indexToDocPos = new InvertedIndex(recman, "words");
 		}catch(Exception e) {
