@@ -7,13 +7,6 @@ Email:
 */
 import java.util.Vector;
 import org.htmlparser.beans.StringBean;
-import org.htmlparser.Node;
-import org.htmlparser.NodeFilter;
-import org.htmlparser.Parser;
-import org.htmlparser.filters.AndFilter;
-import org.htmlparser.filters.NodeClassFilter;
-import org.htmlparser.tags.LinkTag;
-import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 
 import java.util.Date;
@@ -21,7 +14,6 @@ import java.util.Iterator;
 import java.util.StringTokenizer;
 import org.htmlparser.beans.LinkBean;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -65,7 +57,7 @@ public class Crawler
 	public long extractContentLengthLong() {
 		try {
 			URL place = new URL(url);
-			URLConnection connection = place.openConnection();
+			URLConnection connection = place.openConnection(); 
 			long length = connection.getContentLengthLong();
 			if(length == -1L) {
 				Iterator<String> vecItor = this.stringVec.iterator();
@@ -77,6 +69,7 @@ public class Crawler
 			return length;
 			
 		}catch (Exception e) {
+			e.printStackTrace();
 			return 0L;
 		}
 		
@@ -110,7 +103,7 @@ public class Crawler
 	{
 		try {
 			URL place = new URL(url);
-			URLConnection connection = place.openConnection();
+			URLConnection  connection = place.openConnection();
 			long date = connection.getLastModified();
 			SimpleDateFormat dateFormatter = new SimpleDateFormat("EEEE, MMMM d, yyyy");
 			if(date == 0) {
