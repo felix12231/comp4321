@@ -32,6 +32,8 @@ public class Spider {
 			indexToLastModifiedDate = new Index(recman, "indexToLastModifiedDate");
 			indexToWordWithFrequency = new InvertedIndex(recman, "indexToWordWithFrequency");
 			indexToChildLink = new InvertedIndex(recman, "indexToChildLink");
+			indexToPageSize = new Index(recman, "indexToPageSize");
+			indexToParentLink = new InvertedIndex(recman,"indexToParentLink");
 			
 			indexToDocPos = new InvertedIndex(recman, "words");
 		}catch(Exception e) {
@@ -62,6 +64,7 @@ public class Spider {
 					indexToPageURL.addEntry(numPages, currentPage);
 					indexToTitle.addEntry(numPages, crawler.extractTitle());
 					indexToLastModifiedDate.addEntry(numPages, crawler.extractLastModifiedDate());
+					indexToPageSize.addEntry(String.valueOf(numPages), String.valueOf(crawler.extractContentLengthLong()));
 					
 					Vector<String> currentPageWords = crawler.extractWords();
 					int nthWord = 0;
@@ -78,6 +81,9 @@ public class Spider {
 						indexToDocPos.addEntry(currentWords, numPages, nthWord);
 						indexToWordWithFrequency.addEntryFrequency(String.valueOf(numPages), currentWords);
 						nthWord++;
+					}
+					for(String currentLink : crawler.extractLinks()) {
+						indexToChildLink.addEntry(String.valueOf(numPages), currentLink);
 					}
 					numPages++;
 				}
@@ -101,6 +107,10 @@ public class Spider {
 			indexToLastModifiedDate.printAll();
 			System.out.println("\n\nindexToWordWithFrequency:");
 			indexToWordWithFrequency.printAll();
+			//System.out.println("\n\nindexToChildLink");
+			//indexToChildLink.printAll();
+			System.out.println("\n\nindexToLastModifiedDate");
+			indexToLastModifiedDate.printAll();
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
