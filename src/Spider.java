@@ -53,6 +53,9 @@ public class Spider {
 				if(currentPage.charAt(currentPage.length()-1) == '/') {
 					currentPage = currentPage.substring(0, currentPage.length()-1);
 				}
+				if(currentPage.contains("lang=hk") || currentPage.contains("lang=cn")) {
+					continue;
+				}
 				if(visitedPage.checkEntry(currentPage)) {
 					System.out.println("already visited: " + currentPage);
 					continue;
@@ -63,8 +66,10 @@ public class Spider {
 					indexToPageURL.addEntry(numPages, currentPage);
 					indexToTitle.addEntry(numPages, crawler.extractTitle());
 					indexToLastModifiedDate.addEntry(numPages, crawler.extractLastModifiedDate());
-					Vector<String> currentPageWords = crawler.extractWords();
+					
 					indexToPageSize.addEntry(String.valueOf(numPages), String.valueOf(crawler.extractContentLengthLong()));
+					
+					Vector<String> currentPageWords = crawler.extractWords();
 					int nthWord = 0;
 					for(String currentWords : currentPageWords) {
 						if(stopStem.isStopWord(currentWords)) {
@@ -72,7 +77,7 @@ public class Spider {
 							continue;
 						}
 						currentWords = stopStem.stem(currentWords);
-						if(currentWords == " " || currentWords == "" || (currentWords.contains("http") && currentWords.length() > 17)) {
+						if(currentWords == " " || currentWords == "") {
 							nthWord++;
 							continue;
 						}
