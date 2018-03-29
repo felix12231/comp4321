@@ -54,6 +54,7 @@ public class Spider {
 					currentPage = currentPage.substring(0, currentPage.length()-1);
 				}
 				if(currentPage.contains("lang=hk") || currentPage.contains("lang=cn")) {
+					System.out.println("Ignore non-English web page");
 					continue;
 				}
 				if(visitedPage.checkEntry(currentPage)) {
@@ -209,7 +210,7 @@ public class Spider {
 		Spider.initializeDatabase();
 		Spider.crawlPages();
 		Spider.getPages();
-		Spider.output();
+		//Spider.output();
 		Spider.finalizingPages();
 	}
 	
