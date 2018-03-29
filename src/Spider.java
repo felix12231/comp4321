@@ -139,10 +139,18 @@ public class Spider {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
 			FastIterator itor = indexToTitle.getFastIterator();
 			String primaryKey;
+			String title;
 			primaryKey= (String) itor.next();
 			while(primaryKey!= null) {
 				System.out.println("primaryKey = "+primaryKey);
-				writer.write(indexToTitle.getValue(primaryKey));
+				title = indexToTitle.getValue(primaryKey);
+				if(!title.equals("")) {
+					writer.write(title);
+					System.out.println("title" + title);
+				}else {
+					writer.write("No title");
+					System.out.println("No title");
+				}
 				writer.newLine();
 				writer.write(indexToPageURL.getValue(primaryKey));
 				writer.newLine();
@@ -166,6 +174,9 @@ public class Spider {
 					writer.write(allList[i]);
 					writer.write(" "+allList[i+1]);			
 					writer.newLine();
+				}else {
+					writer.write("No keyword indexed");
+					writer.newLine();
 				}
 				allS = (String) indexToChildLink.getValue(primaryKey);
 				if(allS != null) {
@@ -174,8 +185,10 @@ public class Spider {
 						writer.write(allList[i]);
 						writer.newLine();
 					}
-					// writer.write(allList[i]);
-				}	
+				}else {
+					writer.write("No child link");
+					writer.newLine();
+				}
 				if((primaryKey = (String) itor.next())!=null) {
 					writer.write("-------------------------------------------------------------------------------------------");
 					writer.newLine();
