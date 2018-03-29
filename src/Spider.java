@@ -66,10 +66,9 @@ public class Spider {
 					indexToPageURL.addEntry(numPages, currentPage);
 					indexToTitle.addEntry(numPages, crawler.extractTitle());
 					indexToLastModifiedDate.addEntry(numPages, crawler.extractLastModifiedDate());
-					
+					Vector<String> currentPageWords = crawler.extractWords();
 					indexToPageSize.addEntry(String.valueOf(numPages), String.valueOf(crawler.extractContentLengthLong()));
 					
-					Vector<String> currentPageWords = crawler.extractWords();
 					int nthWord = 0;
 					for(String currentWords : currentPageWords) {
 						if(stopStem.isStopWord(currentWords)) {
