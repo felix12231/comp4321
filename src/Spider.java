@@ -20,7 +20,7 @@ public class Spider {
 	// ignore links but not numbers 
 	static InvertedIndex indexToChildLink; // to-be-done
 	static Index indexToPageSize; // to-be-done
-	static InvertedIndex indexToParentLink; // to-be-done
+	static InvertedIndex linkToParentLink; // to-be-done
 	
 	public static void initializeDatabase() {
 		try {
@@ -32,7 +32,7 @@ public class Spider {
 			indexToWordWithFrequency = new InvertedIndex(recman, "indexToWordWithFrequency");
 			indexToChildLink = new InvertedIndex(recman, "indexToChildLink");
 			indexToPageSize = new Index(recman, "indexToPageSize");
-			indexToParentLink = new InvertedIndex(recman,"indexToParentLink");
+			linkToParentLink = new InvertedIndex(recman,"indexToParentLink");
 			
 			indexToDocPos = new InvertedIndex(recman, "words");
 		}catch(Exception e) {
@@ -86,6 +86,7 @@ public class Spider {
 					}
 					for(String currentLink : crawler.extractLinks()) {
 						indexToChildLink.addEntry(String.valueOf(numPages), currentLink);
+						linkToParentLink.addEntry(currentLink, currentPage);
 					}
 					numPages++;
 				}
