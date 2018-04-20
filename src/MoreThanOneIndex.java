@@ -158,6 +158,11 @@ public class MoreThanOneIndex
 		return (String) hashtable.get(key);
 	}
 	
+	public String getValueWithDocument(String key) throws IOException {
+		key = key.substring(3);
+		return (String) hashtable.get(key);
+	}
+	
 	public boolean checkEntry(String check) throws IOException{
 		String original = (String) hashtable.get(check);
 		return (original == null || original.equals("")) ? false : true;

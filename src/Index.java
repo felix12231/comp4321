@@ -102,6 +102,15 @@ public class Index
 		return (String) hashtable.get(key);
 	}
 	
+	public int getNumKey() throws IOException {
+		FastIterator iter = hashtable.keys();
+		int numKey = 0;
+		while(iter.next()!=null) {
+			numKey++;
+		}
+		return numKey;
+	}
+	
 	public boolean checkEntry(String check) throws IOException{
 		String original = (String) hashtable.get(check);
 		return (original == null || original.equals("")) ? false : true;
