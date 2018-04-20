@@ -11,7 +11,6 @@ import jdbm.RecordManagerFactory;
 import jdbm.htree.HTree;
 import jdbm.helper.FastIterator;
 import java.io.IOException;	
-import java.io.Serializable;
 
 public class MoreThanOneIndex
 {
