@@ -9,7 +9,7 @@ import jdbm.helper.FastIterator;
 
 public class Spider {
 	static String firstPage = "http://www.cse.ust.hk";
-	static int maxPages = 30;
+	static int maxPages = 100;
 	static RecordManager recman;
 	static StopStem stopStem = new StopStem("stopwords.txt");
 	static Index visitedPage; // page's URL to primary key
@@ -46,8 +46,9 @@ public class Spider {
 			Vector<String> pages = new Vector<String>();
 			pages.add(firstPage);
 			int numPages = 0;
-			System.out.println("\nGet 30 pages");
+			System.out.println("\nGet some pages");
 			while(!pages.isEmpty() && numPages < maxPages) {
+				try {
 				String currentPage = pages.get(0);
 				System.out.println(currentPage);
 				pages.remove(0);
@@ -91,6 +92,9 @@ public class Spider {
 						linkToParentLink.addEntry(currentLink, currentPage);
 					}
 					numPages++;
+				}
+				}catch(Exception e) {
+					e.printStackTrace();
 				}
 			}
 		}catch(Exception e) {
