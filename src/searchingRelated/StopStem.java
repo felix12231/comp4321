@@ -1,3 +1,4 @@
+package searchingRelated;
 import IRUtilities.*;
 import java.io.*;
 import java.io.BufferedInputStream;

@@ -1,5 +1,9 @@
+package searchingRelated;
+import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 
 import jdbm.RecordManager;
@@ -44,11 +48,17 @@ public class Searcher {
 				String word = keywords.elementAt(i);
 				if (!stopStem.isStopWord(word)){
 					String temp = stopStem.stem(word);
+					if(indexToDocPos.getValue(temp) == null) {
+						continue;
+					}
 					keywordToDocumentWithPosition.add(indexToDocPos.getValue(temp));
 					System.out.println(indexToDocPos.getValue(temp));
 				}
 			}
-			
+			if(keywordToDocumentWithPosition.size() == 0) {
+				Vector<Page> result = new Vector<Page>();
+				return result;
+			}
 			
 			int docNum = visitedPage.getNumKey();
 			System.out.println(docNum);
@@ -116,14 +126,27 @@ public class Searcher {
 		}
 	}
 	
+	public String whereIsStopWord() {
+		File file = new File("comp4321/stopwords.txt");
+		return file.getAbsolutePath();
+	}
+	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		Searcher abc = new Searcher();
-		Vector<String> stringToBeSearched = new Vector<String>();
-		stringToBeSearched.add("Professor");
-		stringToBeSearched.add("Chan");
-		stringToBeSearched.add("HKUST");
-		System.out.println(abc.search(stringToBeSearched));
+		String string1 = "Professor Chan";
+
+	    String[] str1 = string1.split(" ");
+		List<String> list = Arrays.asList(str1);
+	    Vector<String> vector = new Vector<String>(list);
+		for(int i=0; i< vector.size(); i++){
+			System.out.println(vector.get(i) + "<br/>");
+	    }
+
+	    Searcher se = new Searcher();
+		Vector<Page> result = se.search(vector);
+		System.out.println(result);
+		
+		System.out.println(se.whereIsStopWord());
 	}
 
 }

@@ -1,3 +1,4 @@
+package searchingRelated;
 /* --
 COMP336 Lab1 Exercise
 Student Name: Chan Hiu Lok Felix
