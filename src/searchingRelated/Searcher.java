@@ -117,6 +117,7 @@ public class Searcher {
 				double sumDQ = 0;
 				double sumDk = 0;
 				double sumQk = 0;
+				int titleMatch = 0;
 				for(int i = 0; i < tfxidfMap.length; i++) {
 					double currentQk = 1;			//please note that currently assume that no repeat term in query
 					sumQk += currentQk*currentQk;
@@ -125,19 +126,33 @@ public class Searcher {
 					double currentDk = tfxidfMap[i].get(integer);
 					sumDk += currentDk*currentDk;
 					sumDQ += currentDk*currentQk;
+					if(indexToTitle.getValue(integer.toString()).contains(keywords.get(i))) {
+						titleMatch++;
+					}
 				}
 				sumDk = Math.sqrt(sumDk);
 				sumQk = Math.sqrt(sumQk);
-				double cosineSimilarity = (sumDQ / sumDk) / sumQk;
+				double cosineSimilarity = (sumDQ / sumDk) / sumQk + titleMatch;
 				System.out.println(sumDk + " " + sumQk + " " + sumDQ + " " + cosineSimilarity);
-				
 				Page currentPage = new Page();
-				currentPage.setScore(sumDQ/sumDk/sumQk);
+				currentPage.setScore(cosineSimilarity);
 				currentPage.setUrl(indexToPageURL.getValue(integer.toString()));
 				currentPage.setPageSize(Integer.parseInt(indexToPageSize.getValue(integer.toString())));
 				currentPage.setPageTitle(indexToTitle.getValue(integer.toString()));
 				currentPage.setLastUpdateTime(indexToLastModifiedDate.getValue(integer.toString()));
 				//child link and parent link are not added.
+				if(indexToChildLink.checkEntry(integer.toString())){
+					String[] childLinks = indexToChildLink.getValue(integer.toString()).split(" ");
+					for(String childLink : childLinks) {
+						currentPage.addChildrenLink(childLink);
+					}
+				}
+				if(linkToParentLink.checkEntry(indexToPageURL.getValue(integer.toString()))){		//seems have problem, request for checking
+					String[] parentLinks = linkToParentLink.getValue(indexToPageURL.getValue(integer.toString())).split(" ");
+					for(String parentLink : parentLinks) {
+						currentPage.addParentLink(parentLink);
+					}
+				}
 				result.add(currentPage);
 			}
 			Collections.sort(result); //sort from largest to smallest
@@ -155,9 +170,17 @@ public class Searcher {
 		return file.getAbsolutePath();
 	}
 	
+	public void getAllParentLink() {
+		try {
+		linkToParentLink.printAll();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		String string1 = "Professor Chan";
+		String string1 = "Professor Chan Fintech";
 
 	    String[] str1 = string1.split(" ");
 		List<String> list = Arrays.asList(str1);
@@ -171,6 +194,7 @@ public class Searcher {
 		System.out.println(result);
 		
 		System.out.println(se.whereIsStopWord());
+		//se.getAllParentLink();
 	}
 
 }
