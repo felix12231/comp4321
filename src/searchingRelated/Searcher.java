@@ -239,6 +239,11 @@ public class Searcher {
 					for(String parentLink : parentLinks) {
 						currentPage.addParentLink(parentLink);
 					}
+				}else if(linkToParentLink.checkEntry(indexToPageURL.getValue(integer.toString()) + "/")) {
+					String[] parentLinks = linkToParentLink.getValue(indexToPageURL.getValue(integer.toString()) + "/").split(" ");
+					for(String parentLink : parentLinks) {
+						currentPage.addParentLink(parentLink);
+					}
 				}
 				result.add(currentPage);
 			}
@@ -259,7 +264,8 @@ public class Searcher {
 	
 	public void getAllParentLink() {
 		try {
-		linkToParentLink.printAll();
+		//indexToChildLink.printAll();
+			linkToParentLink.printAll();
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -276,13 +282,13 @@ public class Searcher {
 		for(int i=0; i< vector.size(); i++){
 			System.out.println(vector.get(i) + "<br/>");
 	    }
-
+		
 	    Searcher se = new Searcher();
 		Vector<Page> result = se.search(vector);
 		System.out.println(result);
 		
 		System.out.println(se.whereIsStopWord());
-		//se.getAllParentLink();
+		se.getAllParentLink();
 	}
 
 }

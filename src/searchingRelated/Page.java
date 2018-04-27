@@ -1,5 +1,4 @@
 package searchingRelated;
-import java.util.Collections;
 import java.util.Vector;
 
 public class Page implements Comparable<Page>{
@@ -66,7 +65,7 @@ public class Page implements Comparable<Page>{
 		return parentLink;
 	}
 	public void addParentLink(String parentLink) {
-		this.parentLink.addElement(parentLink);;
+		this.parentLink.addElement(parentLink);
 	}
 	public Vector<String> getChildrenLink() {
 		return childrenLink;
