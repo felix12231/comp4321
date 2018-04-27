@@ -245,6 +245,15 @@ public class Searcher {
 						currentPage.addParentLink(parentLink);
 					}
 				}
+				String[] wordListWithFrequency = indexToWordWithFrequency.getValue(integer.toString()).split(" ");
+				Vector<WordWithFrequency> topFiveWord = new Vector<WordWithFrequency>();
+				for(int i = 0; i < wordListWithFrequency.length; i+=2) {
+					topFiveWord.addElement(new WordWithFrequency(wordListWithFrequency[i], Integer.parseInt(wordListWithFrequency[i+1])));
+				}
+				Collections.sort(topFiveWord);
+				for(int i = 0; i < 5 && i < topFiveWord.size(); i++) {
+					currentPage.addTopFiveWord(topFiveWord.get(i));
+				}
 				result.add(currentPage);
 			}
 			Collections.sort(result); //sort from largest to smallest

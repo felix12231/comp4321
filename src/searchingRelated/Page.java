@@ -9,10 +9,12 @@ public class Page implements Comparable<Page>{
 	private int pageSize;
 	private Vector<String> parentLink;
 	private Vector<String> childrenLink;
+	private Vector<WordWithFrequency> topFiveWord;
 	
 	public Page() {
 		parentLink = new Vector<String>();
 		childrenLink = new Vector<String>();
+		topFiveWord = new Vector<WordWithFrequency>();
 	}
 	
 	
@@ -20,7 +22,12 @@ public class Page implements Comparable<Page>{
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return "score: " + score + "\npage title: " + pageTitle + "\nurl: " + url + "\nlast update time: " + lastUpdateTime + "\npage size: " + pageSize + "\namount: " + parentLink.size() + " " + childrenLink.size() + "\n";
+		String storeString = "score: " + score + "\npage title: " + pageTitle + "\nurl: " + url + "\nlast update time: " + lastUpdateTime + "\npage size: " + pageSize + "\namount: " + parentLink.size() + " " + childrenLink.size() + "\n"
+				+ "top 5 words: ";
+		for(int i = 0; i < topFiveWord.size(); i++) {
+			storeString += topFiveWord.get(i) + " ";
+		}
+		return storeString;
 	}
 
 
@@ -73,5 +80,49 @@ public class Page implements Comparable<Page>{
 	public void addChildrenLink(String childrenLink) {
 		this.childrenLink.addElement(childrenLink);
 	}
+
+	public Vector<WordWithFrequency> getTopFiveWord() {
+		return topFiveWord;
+	}
+
+	public void addTopFiveWord(WordWithFrequency topFiveWord) {
+		this.topFiveWord.addElement(topFiveWord);
+	}
+	
+	
 }
 
+class WordWithFrequency implements Comparable<WordWithFrequency>{
+	public String word;
+	public int frequency;
+	
+	public WordWithFrequency(String word, int frequency) {
+		this.word = word;
+		this.frequency = frequency;
+	}
+	
+	public int compareTo(WordWithFrequency anotherWord) {
+		return (anotherWord.frequency < frequency) ? -1: ((anotherWord.frequency == frequency) ? 0: 1);
+	}
+
+	public String getWord() {
+		return word;
+	}
+
+	public void setWord(String word) {
+		this.word = word;
+	}
+
+	public int getFrequency() {
+		return frequency;
+	}
+
+	public void setFrequency(int frequency) {
+		this.frequency = frequency;
+	}
+	
+	@Override
+	public String toString() {
+		return word + " " + frequency + " ";
+	}
+}
