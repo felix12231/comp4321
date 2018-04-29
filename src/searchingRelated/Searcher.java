@@ -70,84 +70,7 @@ public class Searcher {
 			@SuppressWarnings("unchecked")
 			Hashtable<Integer,Double>[] tfxidfMap = (Hashtable<Integer,Double>[])new Hashtable<?,?>[keywordToDocumentWithPosition.size() + moreThanOneWord.size()];
 			Vector<Integer> allPages = new Vector<Integer>();
-			for(int i = 0; i < keywordToDocumentWithPosition.size() + moreThanOneWord.size(); i++) {
-				if(moreThanOneWord.contains(i)) {
-					boolean haveStopWord = false;
-					String[] wordList = keywords.elementAt(i).split(" ");
-					for(int j = 0; j < wordList.length; j++) {
-						if (stopStem.isStopWord(wordList[j])){
-							haveStopWord = true;
-							break;
-						}else {
-							wordList[j] = stopStem.stem(wordList[j]);
-						}
-					}
-					if(haveStopWord) {
-						tfxidfMap[i] = new Hashtable<Integer, Double>();
-					}else {
-						Vector<String> store = new Vector<String>(Arrays.asList(indexToDocPos.getValue(wordList[0]).split(" ")));
-						System.out.println(keywords.elementAt(i));
-						for(int j = 1; j < wordList.length; j++) {
-							Vector<String> currentIndexList = new Vector<String>(Arrays.asList(indexToDocPos.getValue(wordList[j]).split(" ")));
-							int currentIndexListPosition = 0;
-							for(int k = 0; k < store.size() && currentIndexListPosition < currentIndexList.size(); ) {
-								if(Integer.parseInt(store.elementAt(k).substring(3)) < Integer.parseInt(currentIndexList.elementAt(currentIndexListPosition).substring(3))) {
-									store.removeElementAt(k);			//remove the document
-									store.removeElementAt(k);			//remove the index
-								}else if(Integer.parseInt(store.elementAt(k).substring(3)) > Integer.parseInt(currentIndexList.elementAt(currentIndexListPosition).substring(3))) {
-									currentIndexListPosition += 2;
-								}else			//same document
-									if(Integer.parseInt(store.elementAt(k+1)) > Integer.parseInt(currentIndexList.elementAt(currentIndexListPosition+1)) - j) {
-										store.removeElementAt(k);		//remove the document
-										store.removeElementAt(k);		//remove the index
-								}else if(Integer.parseInt(store.elementAt(k+1)) < Integer.parseInt(currentIndexList.elementAt(currentIndexListPosition+1)) - j) {
-									currentIndexListPosition += 2;
-								}else {  		//have the phase
-									k += 2;
-									currentIndexListPosition += 2;
-								}
-							}
-						} // so after the for loop should only have the documents and the indexPosition that have the whole phase
-						if(store.size() == 0) {
-							continue;
-						}
-						String stringStore = "";
-						Hashtable<Integer,Integer> tfMap = new Hashtable<Integer, Integer>();
-						tfxidfMap[i] = new Hashtable<Integer, Double>();
-						int counter = 0;
-						int df = 0;
-						for(int j = 0; j < store.size(); j += 2) {
-							if(stringStore.equals(store.elementAt(j))) {
-								counter++;
-							}else if(j != 0){
-								df++;
-								stringStore = store.elementAt(j);
-								tfMap.put(Integer.valueOf(store.elementAt(j-2).substring(3)), counter);
-								System.out.println("tf of " + store.elementAt(j-2) + " is " + tfMap.get(Integer.valueOf(store.elementAt(j-2).substring(3))));
-								counter = 1;
-							}else if(j == 0) {
-								stringStore = store.elementAt(0);
-								counter = 1;
-							}
-						}
-						df++;
-						stringStore = store.elementAt(store.size()-2);
-						tfMap.put(Integer.valueOf(stringStore.substring(3)), counter);
-						System.out.println("tf of " + stringStore + " is " + tfMap.get(Integer.valueOf(stringStore.substring(3))));
-						counter=0;
-						for(Integer integer : tfMap.keySet()) {
-							if(!allPages.contains(integer)) {
-								allPages.add(integer);
-							}
-							double tfxidf = tfMap.get(integer) * Math.log(1.0*docNum/df)/Math.log(2); //tf*idf, i is ith word while integer is the document number
-							tfxidfMap[i].put(integer, tfxidf);
-							System.out.println(integer + " " + tfxidfMap[i].get(integer));
-						}
-						System.out.println("df= " + df);
-						System.out.println("idf= " + (Math.log(1.0*docNum/df)/Math.log(2)));
-					}
-					continue;
-				}
+			for(int i = 0; i < keywordToDocumentWithPosition.size(); i++) {
 				int df = 0;
 				String[] listOfAppearance = keywordToDocumentWithPosition.get(i).split(" ");
 				String stringStore = "";
@@ -186,6 +109,84 @@ public class Searcher {
 				}
 				System.out.println("df= " + df);
 				System.out.println("idf= " + (Math.log(1.0*docNum/df)/Math.log(2)));
+			}
+			int nthPage = keywordToDocumentWithPosition.size();
+			for(Integer i : moreThanOneWord) {
+				boolean haveStopWord = false;
+				String[] wordList = keywords.elementAt(i).split(" ");
+				for(int j = 0; j < wordList.length; j++) {
+					if (stopStem.isStopWord(wordList[j])){
+						haveStopWord = true;
+						break;
+					}else {
+						wordList[j] = stopStem.stem(wordList[j]);
+					}
+				}
+				if(haveStopWord) {
+					tfxidfMap[i] = new Hashtable<Integer, Double>();
+				}else {
+					Vector<String> store = new Vector<String>(Arrays.asList(indexToDocPos.getValue(wordList[0]).split(" ")));
+					System.out.println(keywords.elementAt(i));
+					for(int j = 1; j < wordList.length; j++) {
+						Vector<String> currentIndexList = new Vector<String>(Arrays.asList(indexToDocPos.getValue(wordList[j]).split(" ")));
+						int currentIndexListPosition = 0;
+						for(int k = 0; k < store.size() && currentIndexListPosition < currentIndexList.size(); ) {
+							if(Integer.parseInt(store.elementAt(k).substring(3)) < Integer.parseInt(currentIndexList.elementAt(currentIndexListPosition).substring(3))) {
+								store.removeElementAt(k);			//remove the document
+								store.removeElementAt(k);			//remove the index
+							}else if(Integer.parseInt(store.elementAt(k).substring(3)) > Integer.parseInt(currentIndexList.elementAt(currentIndexListPosition).substring(3))) {
+								currentIndexListPosition += 2;
+							}else			//same document
+								if(Integer.parseInt(store.elementAt(k+1)) > Integer.parseInt(currentIndexList.elementAt(currentIndexListPosition+1)) - j) {
+									store.removeElementAt(k);		//remove the document
+									store.removeElementAt(k);		//remove the index
+							}else if(Integer.parseInt(store.elementAt(k+1)) < Integer.parseInt(currentIndexList.elementAt(currentIndexListPosition+1)) - j) {
+								currentIndexListPosition += 2;
+							}else {  		//have the phase
+								k += 2;
+								currentIndexListPosition += 2;
+							}
+						}
+					} // so after the for loop should only have the documents and the indexPosition that have the whole phase
+					if(store.size() == 0) {
+						continue;
+					}
+					String stringStore = "";
+					Hashtable<Integer,Integer> tfMap = new Hashtable<Integer, Integer>();
+					tfxidfMap[nthPage] = new Hashtable<Integer, Double>();
+					int counter = 0;
+					int df = 0;
+					for(int j = 0; j < store.size(); j += 2) {
+						if(stringStore.equals(store.elementAt(j))) {
+							counter++;
+						}else if(j != 0){
+							df++;
+							stringStore = store.elementAt(j);
+							tfMap.put(Integer.valueOf(store.elementAt(j-2).substring(3)), counter);
+							System.out.println("tf of " + store.elementAt(j-2) + " is " + tfMap.get(Integer.valueOf(store.elementAt(j-2).substring(3))));
+							counter = 1;
+						}else if(j == 0) {
+							stringStore = store.elementAt(0);
+							counter = 1;
+						}
+					}
+					df++;
+					stringStore = store.elementAt(store.size()-2);
+					tfMap.put(Integer.valueOf(stringStore.substring(3)), counter);
+					System.out.println("tf of " + stringStore + " is " + tfMap.get(Integer.valueOf(stringStore.substring(3))));
+					counter=0;
+					for(Integer integer : tfMap.keySet()) {
+						if(!allPages.contains(integer)) {
+							allPages.add(integer);
+						}
+						double tfxidf = tfMap.get(integer) * Math.log(1.0*docNum/df)/Math.log(2); //tf*idf, i is ith word while integer is the document number
+						tfxidfMap[nthPage].put(integer, tfxidf);
+						System.out.println(integer + " " + tfxidfMap[nthPage].get(integer));
+					}
+					System.out.println("df= " + df);
+					System.out.println("idf= " + (Math.log(1.0*docNum/df)/Math.log(2)));
+				}
+				nthPage++;
 			}
 			Vector<Page> result = new Vector<Page>();
 			for(Integer integer: allPages) {
@@ -290,12 +291,13 @@ public class Searcher {
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		String string1 = "Professor Chan Fintech";
+		//String string1 = "Professor abcdefghijk Chan Fintech";
 
+		String string1 = "computer";
 	    String[] str1 = string1.split(" ");
 		List<String> list = Arrays.asList(str1);
 	    Vector<String> vector = new Vector<String>(list);
-	    vector.add("Hong Kong");
+	    //vector.add("Hong Kong");
 		for(int i=0; i< vector.size(); i++){
 			System.out.println(vector.get(i) + "<br/>");
 	    }
