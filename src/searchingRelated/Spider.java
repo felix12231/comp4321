@@ -9,7 +9,7 @@ import jdbm.helper.FastIterator;
 
 public class Spider {
 	static String firstPage = "http://www.cse.ust.hk";
-	static int maxPages = 100;
+	static int maxPages = 500;
 	static RecordManager recman;
 	static StopStem stopStem = new StopStem("stopwords.txt");
 	static Index visitedPage; // page's URL to primary key
@@ -47,57 +47,64 @@ public class Spider {
 			pages.add(firstPage);
 			int numPages = 0;
 			System.out.println("\nGet some pages");
+			// while(!pages.isEmpty() && numPages < maxPages)
 			while(!pages.isEmpty() && numPages < maxPages) {
 				try {
-				String currentPage = pages.get(0);
-				System.out.println(currentPage);
-				pages.remove(0);
-				if(currentPage.charAt(currentPage.length()-1) == '/') {
-					currentPage = currentPage.substring(0, currentPage.length()-1);
-				}
-				if(currentPage.contains("lang=hk") || currentPage.contains("lang=cn")) {
-					System.out.println("Ignore non-English web page");
-					continue;
-				}
-				if(visitedPage.checkEntry(currentPage)) {
-					System.out.println("already visited: " + currentPage);
-					continue;
-				}else {
-					Crawler crawler = new Crawler(currentPage);
-					pages.addAll(crawler.extractLinks());
-					visitedPage.addEntry(currentPage, numPages);
-					indexToPageURL.addEntry(numPages, currentPage);
-					indexToTitle.addEntry(numPages, crawler.extractTitle());
-					indexToLastModifiedDate.addEntry(numPages, crawler.extractLastModifiedDate());
-					Vector<String> currentPageWords = crawler.extractWords();
-					indexToPageSize.addEntry(String.valueOf(numPages), String.valueOf(crawler.extractContentLengthLong()));
-					
-					int nthWord = 0;
-					for(String currentWords : currentPageWords) {
-						if(stopStem.isStopWord(currentWords)) {
-							nthWord++;
+					String currentPage = pages.get(0);
+					System.out.println(currentPage);
+					pages.remove(0);
+					if(currentPage.charAt(currentPage.length()-1) == '/') {
+						currentPage = currentPage.substring(0, currentPage.length()-1);
+					}
+					if(currentPage.contains("lang=hk") || currentPage.contains("lang=cn")) {
+						System.out.println("Ignore non-English web page");
+						continue;
+					}
+					if(visitedPage.checkEntry(currentPage)) {
+						System.out.println("already visited: " + currentPage);
+						continue;
+					}else {
+						Crawler crawler = new Crawler(currentPage);
+						Vector<String> currentPageWords = crawler.extractWords();
+						if(currentPageWords.size() == 0) {
+							System.out.println("Ignore web page with no useful content");
 							continue;
 						}
-						currentWords = stopStem.stem(currentWords);
-						if(currentWords == " " || currentWords == "") {
+						pages.addAll(crawler.extractLinks());
+						visitedPage.addEntry(currentPage, numPages);
+						indexToPageURL.addEntry(numPages, currentPage);
+						indexToTitle.addEntry(numPages, crawler.extractTitle());
+						indexToLastModifiedDate.addEntry(numPages, crawler.extractLastModifiedDate());
+						indexToPageSize.addEntry(String.valueOf(numPages), String.valueOf(crawler.extractContentLengthLong()));
+						
+						int nthWord = 0;
+						for(String currentWords : currentPageWords) {
+							if(stopStem.isStopWord(currentWords)) {
+								nthWord++;
+								continue;
+							}
+							currentWords = stopStem.stem(currentWords);
+							if(currentWords == " " || currentWords == "") {
+								nthWord++;
+								continue;
+							}
+							indexToDocPos.addEntry(currentWords, numPages, nthWord);
+							indexToWordWithFrequency.addEntryFrequency(String.valueOf(numPages), currentWords);
 							nthWord++;
-							continue;
 						}
-						indexToDocPos.addEntry(currentWords, numPages, nthWord);
-						indexToWordWithFrequency.addEntryFrequency(String.valueOf(numPages), currentWords);
-						nthWord++;
-					}
-					for(String currentLink : crawler.extractLinks()) {
-						indexToChildLink.addEntry(String.valueOf(numPages), currentLink);
-						linkToParentLink.addEntry(currentLink, currentPage);
-					}
-					numPages++;
+						for(String currentLink : crawler.extractLinks()) {
+							indexToChildLink.addEntry(String.valueOf(numPages), currentLink);
+							linkToParentLink.addEntry(currentLink, currentPage);
+						}
+						numPages++;
 				}
 				}catch(Exception e) {
+					// ignore this webpage
 					e.printStackTrace();
 				}
 			}
 		}catch(Exception e) {
+			// ignore this webpage
 			e.printStackTrace();
 		}
 	}

@@ -280,6 +280,14 @@ public class Searcher {
 		}
 	}
 	
+	public void close() {
+		try{
+			indexToDocPos.finalize();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		String string1 = "Professor Chan Fintech";
@@ -296,7 +304,7 @@ public class Searcher {
 		Vector<Page> result = se.search(vector);
 		System.out.println(result);
 		
-		System.out.println(se.whereIsStopWord());
+		// System.out.println(se.whereIsStopWord());
 		se.getAllParentLink();
 	}
 
