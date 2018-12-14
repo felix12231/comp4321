@@ -5,13 +5,15 @@ import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
+import jdbm.helper.FastIterator;
 
 public class Searcher {
 	static RecordManager recman;
-	static StopStem stopStem = new StopStem("stopwords.txt");
+	static StopStem stopStem = new StopStem(System.getProperty("catalina.home")+"/webapps/comp4321-testing1.0/WEB-INF/lib/stopwords.txt");
 	static Index visitedPage; // page's URL to primary key
 	static InvertedIndex indexToDocPos; // words to page ID and position
 	static Index indexToPageURL; // page's primary key to page's URL
@@ -25,7 +27,12 @@ public class Searcher {
 	
 	public Searcher() {
 		try {
-			recman = RecordManagerFactory.createRecordManager("database");
+			
+			recman = RecordManagerFactory.createRecordManager(System.getProperty("catalina.home")+"/webapps/comp4321-testing1.0/WEB-INF/lib/database");
+			//System.out.println(System.getProperty("catalina.home")+"/webapps/comp4321-testing1.0/WEB-INF/lib/database");
+			//recman = RecordManagerFactory.createRecordManager("/home/ywangcb/apache-tomcat-7.0.86/wtpwebapps/database");
+			//recman = RecordManagerFactory.createRecordManager("/home/orbo/Desktop/COMP4321-Project/apache-tomcat-7.0.86/wtpwebapps/comp4321-testing1.0/WEB-INF/lib/database");
+			// recman = RecordManagerFactory.createRecordManager("database");
 			visitedPage = new Index(recman,"visitedPage");
 			indexToPageURL = new Index(recman, "indexToPage");
 			indexToTitle = new Index(recman, "indexToTitle");
@@ -41,10 +48,19 @@ public class Searcher {
 		}
 	}
 	
+	public String getDebugMsg(){
+		return new String(System.getProperty("catalina.home")+"/webapps/comp4321-testing1.0/WEB-INF/lib/database");
+	}
+	
+	public String getDebugMsg2(){
+		return new String(System.getProperty("catalina.home")+"/webapps/comp4321-testing1.0/WEB-INF/lib/stopwords.txt");
+	}
+	
 	public Vector<Page> search(Vector<String> keywords) {
 		try {
 			Vector<Integer> moreThanOneWord = new Vector<Integer>();
 			Vector<String> keywordToDocumentWithPosition = new Vector<String>();
+			Vector<String> words = new Vector<String>();
 			for(int i = 0; i < keywords.size(); i++){
 				String word = keywords.elementAt(i);
 				if(word.contains(" ")){
@@ -56,6 +72,7 @@ public class Searcher {
 					if(indexToDocPos.getValue(temp) == null) {
 						continue;
 					}
+					words.add(keywords.get(i));
 					keywordToDocumentWithPosition.add(indexToDocPos.getValue(temp));
 					System.out.println(indexToDocPos.getValue(temp));
 				}
@@ -111,6 +128,7 @@ public class Searcher {
 				System.out.println("idf= " + (Math.log(1.0*docNum/df)/Math.log(2)));
 			}
 			int nthPage = keywordToDocumentWithPosition.size();
+			Vector<Integer> toBeDeleted = new Vector<Integer>();
 			for(Integer i : moreThanOneWord) {
 				boolean haveStopWord = false;
 				String[] wordList = keywords.elementAt(i).split(" ");
@@ -125,10 +143,20 @@ public class Searcher {
 				if(haveStopWord) {
 					tfxidfMap[i] = new Hashtable<Integer, Double>();
 				}else {
-					Vector<String> store = new Vector<String>(Arrays.asList(indexToDocPos.getValue(wordList[0]).split(" ")));
+					String firstIndexToDocPos = indexToDocPos.getValue(wordList[0]);
+					if(firstIndexToDocPos == null || firstIndexToDocPos.length()==0){
+						toBeDeleted.add(i);
+						continue;
+					}
+					Vector<String> store = new Vector<String>(Arrays.asList(firstIndexToDocPos.split(" ")));
 					System.out.println(keywords.elementAt(i));
 					for(int j = 1; j < wordList.length; j++) {
-						Vector<String> currentIndexList = new Vector<String>(Arrays.asList(indexToDocPos.getValue(wordList[j]).split(" ")));
+						String currentIndexToDocPos = indexToDocPos.getValue(wordList[j]);
+						if(currentIndexToDocPos==null||currentIndexToDocPos.length() == 0){
+							toBeDeleted.add(i);
+							break;
+						}
+						Vector<String> currentIndexList = new Vector<String>(Arrays.asList(currentIndexToDocPos.split(" ")));
 						int currentIndexListPosition = 0;
 						for(int k = 0; k < store.size() && currentIndexListPosition < currentIndexList.size(); ) {
 							if(Integer.parseInt(store.elementAt(k).substring(3)) < Integer.parseInt(currentIndexList.elementAt(currentIndexListPosition).substring(3))) {
@@ -183,10 +211,14 @@ public class Searcher {
 						tfxidfMap[nthPage].put(integer, tfxidf);
 						System.out.println(integer + " " + tfxidfMap[nthPage].get(integer));
 					}
+					words.add(keywords.get(i));
 					System.out.println("df= " + df);
 					System.out.println("idf= " + (Math.log(1.0*docNum/df)/Math.log(2)));
 				}
 				nthPage++;
+			}
+			for(Integer i : toBeDeleted){
+				moreThanOneWord.remove(i);
 			}
 			Vector<Page> result = new Vector<Page>();
 			for(Integer integer: allPages) {
@@ -204,16 +236,53 @@ public class Searcher {
 				double sumDk = 0;
 				double sumQk = 0;
 				int titleMatch = 0;
+				
 				for(int i = 0; i < tfxidfMap.length; i++) {
 					double currentQk = 1;			//please note that currently assume that no repeat term in query
 					sumQk += currentQk*currentQk;
-					if(!tfxidfMap[i].containsKey(integer))
+					if(tfxidfMap[i] == null || !tfxidfMap[i].containsKey(integer))
 						continue;
 					double currentDk = tfxidfMap[i].get(integer);
 					sumDk += currentDk*currentDk;
 					sumDQ += currentDk*currentQk;
-					if(indexToTitle.getValue(integer.toString()).contains(keywords.get(i))) {
-						titleMatch++;
+				}
+				Vector<String> currentTitle = new Vector(Arrays.asList(indexToTitle.getValue(integer.toString()).split(" ")));
+				System.out.print(currentTitle);
+				for(int j = 0; j < currentTitle.size(); j++){
+					if(currentTitle.get(j).length() > 0)
+						currentTitle.set(j,  stopStem.stem(currentTitle.get(j)));
+				}
+				for(String word : words){
+					if(!word.contains(" ")){
+						word = stopStem.stem(word);
+						for(String currentWord : currentTitle){
+							if(currentWord.equals(word)){
+								titleMatch++;
+								break;
+							}
+						}
+					}else{
+						String[] wordList = word.split(" ");
+						for(int j = 0; j < wordList.length; j++){
+							wordList[j] = stopStem.stem(wordList[j]);
+						}
+						for(int j = 0; j < currentTitle.size(); j++){
+							if(currentTitle.get(j).equals(wordList[0])){
+								boolean wholeStringSame = false;
+								for(int k = 1; k < wordList.length && j+k < currentTitle.size(); k++){
+									if(!currentTitle.get(j+k).equals(wordList[k])){
+										break;
+									}else if(k == wordList.length-1){
+										titleMatch++;
+										wholeStringSame = true;
+										break;
+									}
+								}
+								if(wholeStringSame){
+									break;
+								}
+							}
+						}
 					}
 				}
 				sumDk = Math.sqrt(sumDk);
@@ -289,25 +358,43 @@ public class Searcher {
 		}
 	}
 	
+	public Vector<String> getAllStemmedWords(){
+		try {
+			Vector<String> result = new Vector<String>();
+			FastIterator iter = indexToDocPos.getFastIterator();
+			String key;	
+			while( (key = (String)iter.next())!=null)
+			{
+				Pattern pattern = Pattern.compile("[^a-z0-9]");
+				Matcher matcher = pattern.matcher(key);
+				if(!matcher.find())
+					result.add(key);
+			}
+			return result;
+		}catch(Exception e) {
+			return null;
+		}
+	}
+	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		//String string1 = "Professor abcdefghijk Chan Fintech";
-
-		String string1 = "computer";
+		String string1 = "Professor abcdefghijk Chan Fintech President";
+		//String string1 = "President";
+		//String string1 = "computer";
 	    String[] str1 = string1.split(" ");
 		List<String> list = Arrays.asList(str1);
 	    Vector<String> vector = new Vector<String>(list);
-	    //vector.add("Hong Kong");
+	    vector.add("abcdefg hijklmnop");
 		for(int i=0; i< vector.size(); i++){
 			System.out.println(vector.get(i) + "<br/>");
 	    }
-		
 	    Searcher se = new Searcher();
 		Vector<Page> result = se.search(vector);
 		System.out.println(result);
 		
 		// System.out.println(se.whereIsStopWord());
 		se.getAllParentLink();
+		System.out.println(se.getAllStemmedWords());
 	}
 
 }

@@ -11,7 +11,8 @@ import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
 import jdbm.htree.HTree;
 import jdbm.helper.FastIterator;
-import java.io.IOException;	
+import java.io.IOException;
+import java.io.PrintWriter;	
 
 public class MoreThanOneIndex
 {
@@ -143,9 +144,15 @@ public class MoreThanOneIndex
 		// ADD YOUR CODES HERE
 		FastIterator iter = hashtable.keys();
 		String key;	
+		try {
+			PrintWriter writer = new PrintWriter("output.txt", "UTF-8");
 		while( (key = (String)iter.next())!=null)
 		{
-			System.out.println(key + " : " + hashtable.get(key));
+			writer.println(key + " : " + hashtable.get(key));
+		}
+		writer.close();
+		}catch(Exception e) {
+			e.printStackTrace();
 		}
 	}	
 	
